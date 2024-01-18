@@ -1,60 +1,69 @@
 import json
-#Create Like counting class
+import tinydb
 from tinydb import TinyDB, Query
 from tinydb.table import Document
 
 class LikeDB:
     def __init__(self, db_path):
-        #Initialize the database
         self.db_path = db_path
         self.db = TinyDB(db_path, indent=4)
         self.users = self.db.table('users')
         self.images = self.db.table('images')
+        self.table = self.db.table('api')
 
 
 
 
-    def add_image(self,image_id:str, message_id:str):
+    def add_image(self,image_id:str, message_id:str,url:str):
         """Adds an image to the database
         args:
             image_id: The id of the image
             message_id: The id of the message that the image is attached to
         """
-        #Add the image to the database
-        image = Document({'image_id': image_id}, doc_id=message_id)
-        self.images.insert(image)
+        image = Document({'image_id': image_id, "url":url},doc_id=message_id)
+        return  self.images.insert(image)
+    
 
+    def add_user(self,image_id,user_id):
+
+        user = Document({image_id:{
+                                        "like":True,
+                                        "dislike":False
+                                        }
+                                    },
+                        doc_id=user_id
+                    )
+
+        return self.users.insert(user)
 
     def get_likes_dislike(self, image_id:str):
         """Counts all users likes
         returns
             all users likes
         """
-        # Query the database for all images
-        # Count the number of likes
         likes = 0
         dislike = 0
         for user in self.users:
-            if user[image_id]['like']:
-                likes += 1
-            else:
-                dislike += 1
-            
+                if user[image_id]['like']:
+                    likes += 1
+                else:
+                    dislike += 1
         return likes, dislike
-
- 
-        
-        
-    def all_dislikes(self):
+  
+    def all_dislikes(self,dislikes:str):
         """Counts all users dislikes
         returns
             all users dislikes
         """
-        pass
+        q = tinydb.Query()
+        return self.table.search(q.dislikes == dislikes)
+    
+    def all_likes(self,likes:str):
+
+        q = tinydb.Query()
+        return self.table.search(q.likes == likes)
         
-        
-    #Add a like to the database
-    def add_like(self, user_id:str,image_id)->dict:
+    def add_like(self, user_id:str,image_id:str):
         '''
         Add a like to the database
         args:
@@ -63,22 +72,23 @@ class LikeDB:
         returns:
             The number of likes and dislikes for the post
         '''
-        # Get the user document
-        # If the user document does not exist, create it
         if self.users.contains(doc_id=user_id):
             user_doc = self.users.get(doc_id=user_id)
-            user_doc[image_id] = {'like': True, 'dislike': False}
+            user_doc[image_id] = {
+                'like': True, 
+                'dislike': False
+                }
         else:
-            user_doc = {image_id: {'like': True, 'dislike': False}}
-        # Create user document
-     
+            user_doc = {image_id: {
+                'like': True, 
+                'dislike': False
+                }
+            }
         user_doc = Document(user_doc, doc_id=user_id)
         self.users.insert(user_doc)
         
 
-  
-    #Add a dislike to the database
-    def add_dislike(self, user_id:str,image_id)->dict:
+    def add_dislike(self, user_id:str,image_id:str):
         '''
         Add a dislike to the database
         args:
@@ -88,18 +98,15 @@ class LikeDB:
         '''
         if self.users.contains(doc_id=user_id):
             user_doc = self.users.get(doc_id=user_id)
-            user_doc[image_id] = {'like': False, 'dislike': True}
+            user_doc[image_id] = {
+                'like': False, 
+                'dislike': True
+                }
         else:
-            user_doc = {image_id: {'like': False, 'dislike': True}}
-        # Create user document
-     
+            user_doc = {image_id: {
+                'like': False, 
+                'dislike': True
+                }
+            }
         user_doc = Document(user_doc, doc_id=user_id)
         self.users.insert(user_doc)
-
-
-# db = LikeDB('like_db.json')
-
-# db.add_like('user1', 'img1')
-# db.add_like('3', 'img2')
-# db.add_dislike('4', 'img2')
-# db.add_image('img1', 'msg1')
