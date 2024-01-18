@@ -1,0 +1,40 @@
+{
+    "images": {
+        "1": {
+            "1": {
+                "like": 0,
+                "dislike": 0
+            }
+        },
+        "2": {
+            "3": {
+                "like": true,
+                "dislike": false
+            }
+        },
+        "4": {
+            "image_id": "5",
+            "url": "https://www.imgcorporations.com/images/bg-img.jpg"
+        }
+    },
+    "users": {
+        "5": {
+            "4": {
+                "like": true,
+                "dislike": false
+            }
+        },
+        "10": {
+            "5": {
+                "like": false,
+                "dislike": true
+            }
+        },
+        "20": {
+            "12": {
+                "like": false,
+                "dislike": true
+            }
+        }
+    }
+}
